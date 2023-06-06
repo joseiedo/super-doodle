@@ -1,8 +1,11 @@
+import Canvas from "./Components/Canvas";
 
 
 function App() {
   return (
-    <div></div>
+    <div>
+      <Canvas/>
+    </div>
   );
 }
 
