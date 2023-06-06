@@ -1,24 +1,27 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react';
 
-const Canvas = props => {
-    const canvasRef = useRef(null)
+const Canvas = ({ player, ...props }) => {
+  const canvasRef = useRef(null);
 
-    const draw = (ctx) => {
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        ctx.fillStyle = '#000000'
+  const draw = useCallback(
+    (ctx) => {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    }
+      ctx.fillStyle = 'red';
+      ctx.fillRect(player.x, player.y, 10, 10);
+    },
+    [player.x, player.y]
+  );
 
-    useEffect(() => {
-        const canvas = canvasRef.current
-        const context = canvas.getContext('2d')
-        
-        
-        draw(context)
-    },[draw])
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
 
+    draw(context);
+  }, [draw, player.x, player.y]);
 
-    return <canvas ref={canvasRef} {...props}/>
-} 
+  return <canvas ref={canvasRef} {...props} />;
+};
 
-export default Canvas
+export default Canvas;
