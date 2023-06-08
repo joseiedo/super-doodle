@@ -18,7 +18,7 @@ export function useGameWebSocket() {
   }, [game]);
 
   useEffect(() => {
-    stompClient.connect({}, async function () {
+    stompClient.connect({}, async () => {
       setConnected(true);
 
       stompClient.subscribe('/game/current', ({ body }) => {
@@ -26,16 +26,14 @@ export function useGameWebSocket() {
         setGame(game);
       });
 
-      if (currentPlayer === null) {
-        const player = await joinGame();
+      const player = await joinGame();
 
+      setCurrentPlayer(player);
+
+      stompClient.subscribe(`/game/player/${player.id}`, ({ body }) => {
+        const player = JSON.parse(body);
         setCurrentPlayer(player);
-
-        stompClient.subscribe(`/game/player/${player.id}`, ({ body }) => {
-          const player = JSON.parse(body);
-          setCurrentPlayer(player);
-        });
-      }
+      });
     });
   }, []);
 
