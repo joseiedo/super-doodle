@@ -4,6 +4,8 @@ import Stomp from 'stompjs';
 import { Game } from '../types/Game';
 import { Player } from '../types/Player';
 import { joinGame } from '../api/joinGame';
+import { Direction } from '../types/Direction';
+import { leaveGame } from '../api/leaveGame';
 
 export function useGameWebSocket() {
   const SOCKET_URL = 'http://localhost:8080/ws';
@@ -27,66 +29,38 @@ export function useGameWebSocket() {
       });
 
       const player = await joinGame();
-
       setCurrentPlayer(player);
-
-      stompClient.subscribe(`/game/player/${player.id}`, ({ body }) => {
-        const player = JSON.parse(body);
-        setCurrentPlayer(player);
-      });
     });
   }, []);
 
-  function sendMovementMessage({ positionX, positionY, id }: Player) {
+  const sendMovementMessage = (id: number, direction: Direction) => {
     stompClient.send(
       '/game/movecurrentplayer',
       {},
       JSON.stringify({
-        positionX,
-        positionY,
         id,
+        direction,
       })
     );
-  }
+  };
 
   useEffect(() => {
     function handleMovement(event: KeyboardEvent) {
-      if (currentPlayer === null) return;
+      if (!currentPlayer) return;
 
       const { key } = event;
 
       const movements: { [index: string]: any } = {
-        ArrowUp: () =>
-          sendMovementMessage({
-            positionX: currentPlayer.positionX,
-            positionY: currentPlayer.positionY - 30,
-            id: currentPlayer.id,
-          }),
-        ArrowDown: () =>
-          sendMovementMessage({
-            positionX: currentPlayer.positionX,
-            positionY: currentPlayer.positionY + 30,
-            id: currentPlayer.id,
-          }),
-        ArrowLeft: () =>
-          sendMovementMessage({
-            positionX: currentPlayer.positionX - 30,
-            positionY: currentPlayer.positionY,
-            id: currentPlayer.id,
-          }),
-        ArrowRight: () =>
-          sendMovementMessage({
-            positionX: currentPlayer.positionX + 30,
-            positionY: currentPlayer.positionY,
-            id: currentPlayer.id,
-          }),
+        ArrowUp: () => sendMovementMessage(currentPlayer.id, 'UP'),
+        ArrowDown: () => sendMovementMessage(currentPlayer.id, 'DOWN'),
+        ArrowLeft: () => sendMovementMessage(currentPlayer.id, 'LEFT'),
+        ArrowRight: () => sendMovementMessage(currentPlayer.id, 'RIGHT'),
       };
 
       if (movements[key]) {
         movements[key]();
       }
     }
-
     window.addEventListener('keydown', handleMovement);
 
     return () => {

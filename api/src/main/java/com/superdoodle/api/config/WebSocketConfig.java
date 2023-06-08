@@ -22,4 +22,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/game");
         registry.enableSimpleBroker("/game");
     }
+
+
 }
