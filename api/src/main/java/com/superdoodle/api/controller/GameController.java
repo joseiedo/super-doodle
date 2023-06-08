@@ -47,6 +47,7 @@ public class GameController {
                 });
 
         simpMessagingTemplate.convertAndSend("/game/current", game);
+        simpMessagingTemplate.convertAndSend("/game/player/" + player.getId(), player);
     }
 
 }
