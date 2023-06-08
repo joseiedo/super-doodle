@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -14,8 +15,12 @@ import java.util.List;
 @Builder
 public class Game {
 
-    private Long Id;
 
-    private List<Player> players;
+    private Long Id = 1L;
 
+    private List<Player> players = new ArrayList<>();
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
+    }
 }

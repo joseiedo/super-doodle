@@ -1,6 +1,13 @@
 package com.superdoodle.api.controller.request;
 
-public class AddPlayerRequest {
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class MovePlayerRequest {
+
+    private Long id;
 
     private Integer positionY;
 
