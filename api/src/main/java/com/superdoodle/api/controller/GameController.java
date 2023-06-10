@@ -2,16 +2,15 @@ package com.superdoodle.api.controller;
 
 
 import com.superdoodle.api.controller.request.MovePlayerRequest;
-import com.superdoodle.api.enums.Direction;
 import com.superdoodle.api.model.Game;
 import com.superdoodle.api.model.Player;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
-
-import static com.superdoodle.api.enums.Direction.UP;
+import org.springframework.web.socket.messaging.*;
 
 @RestController
 @CrossOrigin("*")
@@ -19,13 +18,13 @@ public class GameController {
 
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
-    private final Game game = new Game();
-    private static final int step = 10;
 
-    @PostMapping("/join")
-    public Player joinGame() {
+    private final Game game = new Game();
+
+    @MessageMapping("/join")
+    public Player joinGame(StompHeaderAccessor headerAccessor) {
         Player player = Player.builder()
-                .id(game.getPlayers().size() + 1L)
+                .id(headerAccessor.getSessionId())
                 .positionX(0)
                 .positionY(0)
                 .build();
@@ -35,17 +34,22 @@ public class GameController {
         return player;
     }
 
-//    @
-//    public void leaveGame(@PathVariable Long id) {
-//        game.getPlayers().removeIf(p -> p.getId().equals(id));
-//        simpMessagingTemplate.convertAndSend("/game/current", game);
-//    }
+    @EventListener
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = headerAccessor.getSessionId();
 
+        game.getPlayers().removeIf(p -> p.getId().equals(sessionId));
+        simpMessagingTemplate.convertAndSend("/game/current", game);
+
+    }
     @MessageMapping("/movecurrentplayer")
-    public void movePlayer(MovePlayerRequest player) {
+    public void movePlayer(StompHeaderAccessor headerAccessor, MovePlayerRequest player) {
+        String sessionId = headerAccessor.getSessionId();
+        final int step = 10;
 
         game.getPlayers().stream()
-                .filter(p -> p.getId().equals(player.getId()))
+                .filter(p -> p.getId().equals(sessionId))
                 .findFirst()
                 .ifPresent(p -> {
                     switch (player.getDirection()) {

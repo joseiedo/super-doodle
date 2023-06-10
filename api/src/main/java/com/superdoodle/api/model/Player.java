@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 public class Player {
 
-    private Long id;
+    private String id;
 
     private Integer positionY;
 
