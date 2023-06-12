@@ -3,7 +3,6 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { Game } from '../types/Game';
 import { Player } from '../types/Player';
-import { joinGame } from '../api/joinGame';
 import { Direction } from '../types/Direction';
 
 export function useGameWebSocket() {

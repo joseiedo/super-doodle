@@ -14,4 +14,6 @@ public class Player {
     private Integer positionY;
 
     private Integer positionX;
+
+    private Integer points;
 }

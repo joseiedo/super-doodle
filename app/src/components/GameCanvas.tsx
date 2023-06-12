@@ -5,29 +5,32 @@ interface GameCanvasProps {
   game: Game;
 }
 
-export const GameCanvas = (props: GameCanvasProps) => {
+export const GameCanvas = ({game}: GameCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
-      drawGame(props.game, canvasRef.current);
+      drawGame(game, canvasRef.current);
     }
-  }, [props.game]);
+  }, [game]);
 
-  return <canvas ref={canvasRef} />;
+  return <canvas ref={canvasRef} width={game.width} height={game.height}/>;
 };
 
-function drawGame(game: Game, canvas: HTMLCanvasElement) {
+function drawGame({players, fruit, width, height}: Game, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Could not get canvas context');
   }
 
   ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, width, height);
 
-  game.players.forEach((player) => {
+  players.forEach((player) => {
     ctx.fillStyle = 'red';
     ctx.fillRect(player.positionX, player.positionY, 10, 10);
   });
+
+  ctx.fillStyle = 'green';
+  ctx.fillRect(fruit.positionX, fruit.positionY, 10, 10);
 }
